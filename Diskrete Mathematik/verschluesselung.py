@@ -2,6 +2,28 @@ import random
 
 import euler
 
+import math
+
+
+def maxPrimeFactor(n):
+    maxPrime = -1
+
+    while n % 2 == 0:
+        maxPrime = 2
+        n >>= 1
+
+    for i in range(3, int(math.sqrt(n)) + 1, 2):
+        while n % i == 0:
+            maxPrime = i
+            n = n / i
+
+    if n > 2:
+        maxPrime = n
+
+    return int(maxPrime)
+
+
+
 def symetrische_verschluesselung(text, shift):
     encrypted_text = ""
     for char in text:
@@ -49,9 +71,10 @@ def rsaKeyGen(p, q):
     phiVonN = euler.phi(n)
 
     # eine teilerfremde zahl kleiner als phiVonN und teilerfremnd zu phiVonN
-    e = random.randint(1, phiVonN)
-    while euler.ggtfunction(e, phiVonN) != 1:
-        e = random.randint(1, phiVonN)
+    while True:
+        e = random.randrange(1, phiVonN - 1)
+        if euler.ggtfunction(e, phiVonN) == 1:
+            break
 
     # d*e = 1 mod phiVonN
     d = euler.multiplative_inverse(e, phiVonN)
@@ -117,7 +140,11 @@ if __name__ == '__main__':
     keyword = "VIVIEN"
     print(vigenere_encryption(plaintext, keyword))
 
-    publicKey, privateKey = rsaKeyGen(61, 53)
+    prime1 = maxPrimeFactor(453465)
+    print(prime1)
+    prime2 = maxPrimeFactor(233465)
+    print(prime2)
+    publicKey, privateKey = rsaKeyGen(prime1, prime2)
     ciphertext = calculate_ciphertext(plaintext, publicKey)
     print('Ciphertext:', ciphertext)
     private_key, decrypted_message_from_private = calculate_private_key(publicKey, ciphertext)
