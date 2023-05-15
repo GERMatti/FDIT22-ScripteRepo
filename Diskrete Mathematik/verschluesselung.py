@@ -1,3 +1,7 @@
+import random
+
+import euler
+
 def symetrische_verschluesselung(text, shift):
     encrypted_text = ""
     for char in text:
@@ -12,6 +16,7 @@ def symetrische_verschluesselung(text, shift):
         else:
             encrypted_text += char
     return encrypted_text
+
 
 def vigenere_encryption(plaintext, keyword):
     encrypted_text = ""
@@ -32,8 +37,90 @@ def vigenere_encryption(plaintext, keyword):
             encrypted_text += char
     return encrypted_text
 
+
+def rsaKeyGen(p, q):
+    if not euler.isPrime(p) or not euler.isPrime(q):
+        return 'p or q is not prime'
+    elif p == q:
+        return 'p and q must be different'
+
+    n = p * q
+
+    phiVonN = euler.phi(n)
+
+    # eine teilerfremde zahl kleiner als phiVonN und teilerfremnd zu phiVonN
+    e = random.randint(1, phiVonN)
+    while euler.ggtfunction(e, phiVonN) != 1:
+        e = random.randint(1, phiVonN)
+
+    # d*e = 1 mod phiVonN
+    d = euler.multiplative_inverse(e, phiVonN)
+    return (n, e), (n, d)
+
+
+def calculate_ciphertext(message, public_key):
+    N, e = public_key
+    ciphertext = []
+
+    for char in message:
+        # Konvertiere den Buchstaben in einen numerischen Wert (A=0, B=1, ...)
+        m = ord(char) - ord('A')
+
+        # Verschlüssele den numerischen Wert
+        c = pow(m, e, N)
+
+        # Füge den verschlüsselten Wert zur Ergebnisliste hinzu
+        ciphertext.append(c)
+
+    return ciphertext
+
+
+def calculate_private_key(public_key, ciphertext):
+    N, e = public_key
+
+    # Chiffrat in numerische Werte umwandeln
+    c = ciphertext
+
+    # Totient von N berechnen
+    phi = euler.phi(N)
+
+    # Öffentlichen Exponenten e mit dem privaten Exponenten d berechnen
+    d = euler.multiplative_inverse(e, phi)
+
+    # Klartext wiederherstellen
+    decrypted_message = [pow(char, d, N) for char in c]
+    decrypted_message = ''.join(chr(char + ord('A')) for char in decrypted_message)
+
+    return d, decrypted_message
+
+
+def rsa_decrypt(ciphertext, private_key):
+    N, d = private_key
+
+    decrypted_message = ""
+
+    for c in ciphertext:
+        # Entschlüsselung des Chiffratwerts mithilfe des privaten Exponenten d
+        m = pow(c, d, N)
+
+        # Konvertiere den numerischen Wert in einen Buchstaben
+        decrypted_char = chr(m + ord('A'))
+
+        # Füge den entschlüsselten Buchstaben zur Ergebniszeichenkette hinzu
+        decrypted_message += decrypted_char
+
+    return decrypted_message
+
+
 if __name__ == '__main__':
-    plaintext = "AVEYRON"
-    keyword = "FRZ"
-    encrypted_text = vigenere_encryption(plaintext, keyword)
-    print("Verschlüsselter Text:", encrypted_text)
+    plaintext = "SCHABE"
+    keyword = "VIVIEN"
+    print(vigenere_encryption(plaintext, keyword))
+
+    publicKey, privateKey = rsaKeyGen(61, 53)
+    ciphertext = calculate_ciphertext(plaintext, publicKey)
+    print('Ciphertext:', ciphertext)
+    private_key, decrypted_message_from_private = calculate_private_key(publicKey, ciphertext)
+    print("Privater Schlüssel:", private_key)
+    print("Entschlüsselte Nachricht:", decrypted_message_from_private)
+    print(rsa_decrypt(ciphertext, privateKey))
