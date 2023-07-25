@@ -81,13 +81,33 @@ def rsaKeyGen(p, q):
     return (n, e), (n, d)
 
 
+def rsa_clear_text_benjamin(ciphertext, private_key):
+    N, d = private_key
+    mapping = {'00': ' ', '01': 'A', '02': 'B', '03': 'C', '04': 'D', '05': 'E', '06': 'F', '07': 'G', '08': 'H',
+               '09': 'I', '10': 'J', '11': 'K', '12': 'L', '13': 'M', '14': 'N', '15': 'O', '16': 'P', '17': 'Q',
+               '18': 'R', '19': 'S', '20': 'T', '21': 'U', '22': 'V', '23': 'W', '24': 'X', '25': 'Y', '26': 'Z'}
+
+    decrypted_message = ""
+
+    for c in ciphertext:
+        m = pow(c, d, N)
+        print(f"{c}^{d} mod {N} = {m}")
+
+        num_str = str(m).zfill(4)
+        num1 = num_str[:2]
+        num2 = num_str[2:]
+        decrypted_char = mapping[num1] + mapping[num2]
+
+        decrypted_message += decrypted_char
+
+    return decrypted_message
 def calculate_ciphertext(message, public_key):
     N, e = public_key
     ciphertext = []
 
     for char in message:
-        # Konvertiere den Buchstaben in einen numerischen Wert (A=0, B=1, ...)
-        m = ord(char) - ord('A')
+        # Konvertiere den Buchstaben in einen entsprechenden Integer-Wert (A=0, B=1, usw.)
+        m = ord(char.upper()) - ord('A')
 
         # Verschlüssele den numerischen Wert
         c = pow(m, e, N)
@@ -136,18 +156,26 @@ def rsa_decrypt(ciphertext, private_key):
 
 
 if __name__ == '__main__':
-    plaintext = "SCHABE"
-    keyword = "VIVIEN"
-    print(vigenere_encryption(plaintext, keyword))
+    #plaintext = "FUSSBALLNATIONALMANNSCHAFT"
+    #keyword = "MARY"
+    cipheratext = [5672, 100, 83, 1403, 5749, 280, 4386]
+    print(rsa_clear_text_benjamin(cipheratext, (6161, 2281)))
 
-    prime1 = maxPrimeFactor(453465)
-    print(prime1)
-    prime2 = maxPrimeFactor(233465)
-    print(prime2)
-    publicKey, privateKey = rsaKeyGen(prime1, prime2)
-    ciphertext = calculate_ciphertext(plaintext, publicKey)
-    print('Ciphertext:', ciphertext)
-    private_key, decrypted_message_from_private = calculate_private_key(publicKey, ciphertext)
-    print("Privater Schlüssel:", private_key)
-    print("Entschlüsselte Nachricht:", decrypted_message_from_private)
-    print(rsa_decrypt(ciphertext, privateKey))
+
+
+    #print(vigenere_encryption(plaintext, keyword))
+    #
+    # prime1 = maxPrimeFactor(453465)
+    # print(prime1)
+    # prime2 = maxPrimeFactor(233465)
+    # print(prime2)
+    # publicKey, privateKey = rsaKeyGen(53, 103)
+    # print('Public Key:', publicKey)
+    # print('Private Key:', privateKey)
+    # publicKey = (10033, 23)
+    # ciphertext = calculate_ciphertext(plaintext, publicKey)
+    # print('Ciphertext:', ciphertext)
+    # private_key, decrypted_message_from_private = calculate_private_key(publicKey, ciphertext)
+    # print("Privater Exponent:", private_key)
+    # print("Entschlüsselte Nachricht:", decrypted_message_from_private)
+    # print(rsa_decrypt(ciphertext, privateKey))

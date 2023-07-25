@@ -1,3 +1,4 @@
+import random
 def faktorisiere_in_primzahlen(zahl):
     faktoren = []
     teiler = 2
@@ -63,12 +64,54 @@ def phi(n):
             count += 1
     return count
 
-if __name__ == '__main__':    
+
+def is_Prime(n):
+    """
+    Miller-Rabin primality test.
+
+    A return value of False means n is certainly not prime. A return value of
+    True means n is very likely a prime.
+    """
+    if n != int(n):
+        return False
+    n = int(n)
+    # Miller-Rabin test for prime
+    if n == 0 or n == 1 or n == 4 or n == 6 or n == 8 or n == 9:
+        return False
+
+    if n == 2 or n == 3 or n == 5 or n == 7:
+        return True
+    s = 0
+    d = n - 1
+    while d % 2 == 0:
+        d >>= 1
+        s += 1
+    assert (2 ** s * d == n - 1)
+
+    def trial_composite(a):
+        if pow(a, d, n) == 1:
+            return False
+        for i in range(s):
+            if pow(a, 2 ** i * d, n) == n - 1:
+                return False
+        return True
+
+    for i in range(8):  # number of trials
+        a = random.randrange(2, n)
+        if trial_composite(a):
+            return False
+
+    return True
+
+
+if __name__ == '__main__':
     # Beispielaufruf des Algorithmus mit der Eingabevariablen 10
-    n = 10
+    n = 1400
     phi_value = phi(n)
     print("Eulersche Phi-Funktion für", n, ":", phi_value)
 
-    print(ggtfunction(12, 8))
-    print(erweiterter_ggt(12, 8))
-    print(multiplative_inverse(12, 8))
+    print(ggtfunction(19, 54))
+    print(erweiterter_ggt(19, 54))
+    print(multiplative_inverse(19, 54))
+    print(is_Prime(8597))
+    print(4**4792 % 4793)
