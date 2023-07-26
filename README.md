@@ -1,3 +1,3 @@
 # FDIT22-ScripteRepo
 
-Hier werden Scripte fuer Mathe oder anderen hochgeladen.
+Hier werden meine Scripte fuer Mathe hochgeladen.
